@@ -2,12 +2,15 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import random
-Qtable = np.zeros((32,2)) #columns for twitsing and sticking.
+
+
 e=0.1
 
-def learning(Qtable,e):
+def learning(e):
+    Qtable = np.zeros((32,2)) #columns for twitsing and sticking.
+    Instances = np.zeros((32,2)) #columns for twitsing and sticking.
     # for 10000 runs
-    for i in range(100000): 
+    for i in range(20000): 
         #recieve first card
         newvalue = twist(0)
         value = np.asarray([0,newvalue])
@@ -25,15 +28,21 @@ def learning(Qtable,e):
             action=np.append(action,newaction)
         #calculate final score
         score = scorecalc(newvalue)
-        #update values in Qtable with the score obtained.
-        Qtable[value.astype(np.int64),action.astype(np.int64)] += score
+        #update values in Qtable with the means of the scores obtained.
+        Qtable[value.astype(np.int64),action.astype(np.int64)] = (Qtable[value.astype(np.int64),action.astype(np.int64)]* Instances[value.astype(np.int64),action.astype(np.int64)] + score)/ (Instances[value.astype(np.int64),action.astype(np.int64)]+1)
+        
+        Instances[value.astype(np.int64),action.astype(np.int64)]+=1
+
     fig = plt.figure()
     ax1 = fig.add_subplot(211)
-    ax1.plot(range(32),Qtable[:,0])
-    ax1.set_ylabel('Weighting to fold')
+    ax1.plot(range(32),Qtable[:,1])
+    ax1.plot(range(32),Qtable[:,0],color='red')
+    ax1.legend(['Twist', 'Fold'])
+    ax1.set_ylabel('Average Score')
     ax1.set_xlabel('Hand value')
     ax1.set(xlim=(-1,22),ylim=(0,max(Qtable[:,0])*1.1))
     plt.xticks(np.arange(0, 22, 1))
+    plt.show()
     return Qtable
 
 #function to generate value of new hand. 
@@ -55,7 +64,7 @@ def actionupdate(Qtable,value,e):
 
 #function to give a new card (twisting)
 def twist(hand):
-    card = random.randint(0,13)
+    card = random.randint(1,13)
     if card >10:
         card = 10
     hand=hand+card
@@ -63,7 +72,7 @@ def twist(hand):
     
 def scorecalc(value):
     if value<=21:
-        score = value**2
+        score = value**(2)
     else: 
         score = 0 
     return score
