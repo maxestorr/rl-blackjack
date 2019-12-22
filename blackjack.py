@@ -19,7 +19,7 @@ def learning(e):
         #while they havent folded or gone bust
         while newaction == 1 and newvalue < 22:
             #find the new value of their hand
-            newvalue = newhand(Qtable,newvalue,newaction,e)
+            newvalue = newhand(newvalue,newaction)
             #append new value to array
             value=np.append(value, newvalue)
             #determine whether to stick or twist
@@ -43,10 +43,12 @@ def learning(e):
     ax1.set(xlim=(-1,22),ylim=(0,max(Qtable[:,0])*1.1))
     plt.xticks(np.arange(0, 22, 1))
     plt.show()
-    return Qtable
+    
+    testscore = test(Qtable)
+    return Qtable, testscore
 
 #function to generate value of new hand. 
-def newhand(Qtable,value,action,e):    
+def newhand(value,action):    
     if action == 1:
         value = twist(value)
     return value
@@ -77,6 +79,27 @@ def scorecalc(value):
         score = 0 
     return score
 
+
+#function to test the results of the Qtable on unseen data. 
+def test(Qtable):
+    testscore=np.zeros(20000)
+    for i in range(20000): 
+        #recieve first card
+        newvalue = twist(0)
+        newaction=np.argmax(Qtable[newvalue])
+        #while they havent folded or gone bust
+        while newaction == 1 and newvalue < 22:
+            #find the new value of their hand
+            newvalue = newhand(newvalue,newaction)
+            #determine whether to stick or twist
+            newaction=np.argmax(Qtable[newvalue])
+        score = scorecalc(newvalue)
+        testscore[i]=score
+    return np.mean(testscore)            
+            
+            
+            
+            
 # class hand(object):
 #     def __init__(self,value,action):
 #         if action == 1:
