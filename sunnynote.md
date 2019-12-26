@@ -16,3 +16,7 @@ an episode, by adding up the score of each hand played, see Eq. (1)
 below.'
 
 We don't need to consider discount factor as our situation isnt infinite.
+
+For infinite decks case, maximizing the returns of each hand is the same as maximizing returns of all hands in a deck, as the probability distribution of cards doesnt change. 
+
+In the finite decks case, we can no longer just maximize the returns of each hand, as the probability distribution of each hand depends on what cards have been used in previous hands. We need to maximize the return of the whole episode, and edit the qtable using this information instead.  
