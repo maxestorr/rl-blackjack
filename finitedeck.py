@@ -5,19 +5,25 @@ import random
 
 
 e=0.1
-nodecks = 500
+nodecks = 50000
 
 def learning(e, nodecks):
     drawpile = initializedrawpile(nodecks)
-    Qtable = np.zeros((34,2)) #columns for twitsing and sticking.
-    Instances = np.zeros((34,2)) #columns for twitsing and sticking.
+    Qtable = np.zeros((34,2,10)) #columns for twitsing and sticking.
+    Instances = np.zeros((34,2,10)) #columns for twitsing and sticking.
     # for 10000 runs
     while any(drawpile!=0): 
+        exp=int(np.round(np.dot(np.asarray([1,2,3,4,5,6,7,8,9,10]),drawpile)/np.sum(drawpile)))
+        expectation = np.asarray([exp])
         #recieve first card
         card, drawpile = twist(drawpile)
-        newaction=actionupdate(Qtable,card,e)
+        exp=int(np.round(np.dot(np.asarray([1,2,3,4,5,6,7,8,9,10]),drawpile)/np.sum(drawpile)))
+        expectation = np.append(expectation, exp)
+        newaction=actionupdate(Qtable,card,e,exp)
         action=np.asarray([1,newaction])
         cardsinhand=np.asarray([0,card])
+        
+        
         #while they havent folded or gone bust (if they have gone bust then 
         #check for an ace.)
         while newaction == 1 and (sum(cardsinhand) < 22 or 11 in cardsinhand) and any(drawpile!=0):
@@ -30,30 +36,38 @@ def learning(e, nodecks):
             
             #if over 21 replace 11 with 1 for aces.
             cardsinhand = acecheck(sum(cardsinhand),cardsinhand)
-                        
+
+            exp=int(np.round(np.dot(np.asarray([1,2,3,4,5,6,7,8,9,10]),drawpile)/np.sum(drawpile)))
+
             #determine whether to stick or twist
-            newaction=actionupdate(Qtable,sum(cardsinhand),e)
+            newaction=actionupdate(Qtable,sum(cardsinhand),e,exp)
             #append new action to array
             action=np.append(action,newaction)
+            
+
+            #calculate expected next card
+            expectation = np.append(expectation, exp)
+
         #calculate final score
         score = scorecalc(sum(cardsinhand))
+
         #update values in Qtable with the means of the scores obtained.
-        Qtable,Instances = qtableupdate(Qtable,Instances,cardsinhand,action,score)        
+        Qtable,Instances = qtableupdate(Qtable,Instances,cardsinhand,action,score,expectation)        
 
     fig = plt.figure()
     ax1 = fig.add_subplot(211)
-    ax1.plot(range(34),Qtable[:,1])
-    ax1.plot(range(34),Qtable[:,0],color='red')
+    ax1.plot(range(34),np.sum(Qtable[:,1,:],axis=1))
+    ax1.plot(range(34),np.sum(Qtable[:,0,:],axis = 1),color='red')
     ax1.legend(['Twist', 'Fold'])
     ax1.set_ylabel('Average Score')
     ax1.set_xlabel('Hand value')
-    ax1.set(xlim=(-1,22),ylim=(0,max(Qtable[:,0])*1.1))
+    ax1.set(xlim=(-1,22),ylim=(0,max(np.sum(Qtable[:,0,:],axis=1))*1.1))
     plt.xticks(np.arange(0, 22, 1))
     plt.show()
     
-    stickon = stickonno(Qtable)
-    testscore = test(Qtable,nodecks)
-    return Qtable, testscore, stickon
+  #  stickon = stickonno(Qtable)
+   # testscore = test(Qtable,nodecks)
+    return Qtable#, testscore, stickon
 
 def initializedrawpile(nodecks):
     #start by creating an array for a single deck
@@ -69,14 +83,14 @@ def newcard(action,drawpile):
         card, drawpile = twist(drawpile)
     return card, drawpile
 
-def actionupdate(Qtable,handvalue,e):
+def actionupdate(Qtable,handvalue,e,exp):
     #if no exploration
     if random.random()>e:
         #calculate new value of action from q table
-        action=np.argmax(Qtable[handvalue,:])
+        action=np.argmax(Qtable[handvalue,:,exp])
     # if there is exploration
     else: 
-        action = 1 - np.argmax(Qtable[handvalue,:])
+        action = 1 - np.argmax(Qtable[handvalue,:,exp])
     return action
 
 def acecheck(handvalue,cardsinhand):
@@ -138,12 +152,12 @@ def stickonno(Qtable):
     return stickon     
             
 
-def qtableupdate(Qtable, Instances, cardsinhand, action,score):
+def qtableupdate(Qtable, Instances, cardsinhand, action,score, expectation):
     total = 0
     for i in range(len(cardsinhand)):
         total+=cardsinhand[i]
-        Qtable[total,action[i]]=(Qtable[total,action[i]]*Instances[total,action[i]]+score)/(Instances[total,action[i]]+1)
-        Instances[total,action[i]]+=1
+        Qtable[total, action[i],expectation[i]]=(Qtable[total,action[i],expectation[i]]*Instances[total,action[i],expectation[i]]+score)/(Instances[total,action[i],expectation[i]]+1)
+        Instances[total , action[i],expectation[i]]+=1
     return Qtable,Instances
             
 # class hand(object):
@@ -153,4 +167,5 @@ def qtableupdate(Qtable, Instances, cardsinhand, action,score):
 #         self.value = value
 #         self.action = action 
     
+
 
