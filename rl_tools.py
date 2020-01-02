@@ -24,7 +24,7 @@ def simulation(Qtable, Instances, drawpile, e):
     # check for an ace.)
     while (
         newaction == 1
-        and (sum(cardsinhand) < 22 or 11 in cardsinhand)
+        and (sum(cardsinhand) < 21 or 11 in cardsinhand)
         and any(drawpile != 0)
     ):
 
