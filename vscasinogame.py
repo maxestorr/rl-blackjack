@@ -20,11 +20,11 @@ nodecks = 6
 
 # stage 1 of learning - learn to maximize score.
 def learning(e, nodecks):
-    Qtable = np.zeros(
-        (34, 2, 5)
-    )  # columns for twitsing and sticking. Extra dimension for divisions of count.
+    Qtable = np.zeros((34,  # Value of cards in hand, 0-21, and greater than 21
+                      2,    # Twist or stick
+                      5))   # Division of count for card counting
     # divisions of count will be c<-10, -10<=c<-3, -3<=c<=3, 3<c<=10, c>10
-    Instances = np.zeros((34, 2, 5))  # columns for twitsing and sticking.
+    Instances = np.zeros((34, 2, 5))  # Count the occurances of a state/action pair
     # repeat following process n times (higher number = better learning)
     for n in range(2000):
         drawpile = initializedrawpile(nodecks)
