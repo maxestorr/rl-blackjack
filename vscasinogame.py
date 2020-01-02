@@ -165,3 +165,5 @@ def plotwinnings(winnings, initialcounts):
     ax.set_ylabel("Average Winnings")
     ax.set_title("Average winnings at different Counts")
 
+if __name__ == "__main__":
+    Qtable, testscore, winnings, initialcount = learning(e, nodecks)
