@@ -103,23 +103,25 @@ def acecheck(handvalue, cardsinhand):
 
 # count gives +1 for any 2,3,4,5,6 and -1 for any ace, 10
 def countcalc(drawpile):
-    count = sum(drawpile[1:6]) - (drawpile[0] + drawpile[9])
+    count = (drawpile[0] + drawpile[9]) - sum(drawpile[1:6])
     if count != 0:
         # true count is count divided by number of decks left.
         truecount = count / (sum(drawpile) / 52)
     else:
         truecount = 0
     # now we have truecount, put it in one of the divisions for the qtable
-    if truecount < -10:
+    if truecount < -8:
         truecount = 0
-    elif (truecount >= -10) & (truecount < -4):
+    elif (truecount >= -8) & (truecount < -4):
         truecount = 1
-    elif (truecount >= -4) & (truecount <= 4):
+    elif (truecount >= -4) & (truecount < 0):
         truecount = 2
-    elif (truecount > 4) & (truecount <= 10):
+    elif (truecount >= 0) & (truecount <= 4):
         truecount = 3
-    elif truecount > 10:
+    elif (truecount > 4) & (truecount <= 8):
         truecount = 4
+    elif truecount > 8:
+        truecount = 5
     return truecount
 
 
@@ -144,9 +146,9 @@ def cardvalue(drawpile, cardnumber):
 
 def scorecalc(value, numberofcards):
     if value == 21 and numberofcards == 3:
-        score = 661.5  # (21**2)*1.5
+        score = 1649  # (21**2.3)*1.5
     elif value <= 21:
-        score = value ** (2)
+        score = value ** (2.3)
     else:
         score = 0
     return score
