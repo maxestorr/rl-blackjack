@@ -24,7 +24,7 @@ def learning(e, nodecks):
     # divisions of count will be c<-10, -10<=c<-3, -3<=c<=3, 3<c<=10, c>10
     Instances = np.zeros((34, 2, 6))  # Count the occurances of a state/action pair
     # repeat following process n times (higher number = better learning)
-    for n in range(5000):
+    for n in range(20000):
         drawpile = initializedrawpile(nodecks)
 
         # until drawpile is empty.
@@ -180,4 +180,6 @@ if __name__ == "__main__":
     avg_winnings = np.mean(winningsarray)
     std_winnings = np.std(winningsarray)
     sem_winnings = std_winnings / np.sqrt(num_episodes)
-    print(avg_score, avg_winnings, sem_winnings)
+    print(f'''average score = {avg_score},
+          average winnings = {avg_winnings},
+          winnings standard error = {sem_winnings}''')
