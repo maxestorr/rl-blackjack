@@ -1,7 +1,6 @@
 # Finite Decks, Aces = reactive
 import numpy as np
 import matplotlib.pyplot as plt
-import random
 from rl_tools import (
     simulation,
     scorecalc,
@@ -9,10 +8,8 @@ from rl_tools import (
     initializedrawpile,
     actionupdate,
     acecheck,
-    cardvalue,
     newcard,
     twist,
-    qtableupdate,
 )
 
 
@@ -183,3 +180,4 @@ if __name__ == "__main__":
     print(f'''average score = {avg_score},
           average winnings = {avg_winnings},
           winnings standard error = {sem_winnings}''')
+
