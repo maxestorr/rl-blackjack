@@ -23,7 +23,7 @@ def learning(e, nodecks):
     # divisions of count will be c<-10, -10<=c<-3, -3<=c<=3, 3<c<=10, c>10
     Instances = np.zeros((34, 2, 6))  # Count the occurances of a state/action pair
     # repeat following process n times (higher number = better learning)
-    for n in range(20000):
+    for n in range(5000):
         drawpile = initializedrawpile(nodecks)
 
         # until drawpile is empty.
@@ -31,9 +31,10 @@ def learning(e, nodecks):
             # simulation function represents 1 game (until fold or bust.)
             Qtable, Instances, drawpile = simulation(Qtable, Instances, drawpile, e)
 
+        if n % 100 == 0:
+            print(f"Finished training episode {n}\n")
 
-
-    return Qtable, testscore, winnings, initialcount
+    return Qtable
 
 
 # function to test the results of the Qtable on unseen data. No exploration.
@@ -162,10 +163,11 @@ if __name__ == "__main__":
     e = 0.1
     nodecks = 6
     
-    Qtable, testscore, winnings, initialcount = learning(e, nodecks)
+    Qtable = learning(e, nodecks)
+    print("Finished Qtable updates\n")
     
     # evaluate model over a number of episodes
-    num_episodes = 5000
+    num_episodes = 3000
     winningsarray=np.zeros(num_episodes)
     testarray=np.zeros(num_episodes)
 
@@ -175,11 +177,15 @@ if __name__ == "__main__":
         testscore, winnings, _ = test(Qtable, nodecks)
         winningsarray[ep]=winnings
         testarray[ep]=testscore
+        if ep % 100 == 0:
+            print(f"Finished testing episode {ep}\n")
+
     avg_score = np.mean(testarray)
     avg_winnings = np.mean(winningsarray)
     std_winnings = np.std(winningsarray)
     sem_winnings = std_winnings / np.sqrt(num_episodes)
-    print(f'''average score = {avg_score},
-          average winnings = {avg_winnings},
-          winnings standard error = {sem_winnings}''')
+    print(f'''After testing:\n
+    average score = {avg_score},
+    average winnings = {avg_winnings},
+    winnings standard error = {sem_winnings}\n''')
 
